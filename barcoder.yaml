@@ -1,0 +1,20 @@
+version: 1.0
+
+mappings:
+  "613008743529":
+    description: "Arizona Iced Tea"
+    command: "notify-send"
+    args:
+      - "Arizona Iced Tea scanned!!!"
+  
+  "9788380962347":
+    description: "RE:ZERO - Starting Life in Another World"
+    command: "notify-send"
+    args:
+      - "RE:ZERO manga scanned!!!"
+
+  "5903899246434":
+    description: "Aloe drink"
+    command: "./riviva.sh"
+    env:
+      ALOE: "500ml"

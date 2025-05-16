@@ -33,7 +33,7 @@ class Scanner:
         self._thread.start()
 
     def stop(self) -> None:
-        """Stop listening and clean up resources"""
+        """Stop listening and clean up"""
         if self._thread and self._thread.is_alive():
             self._stop_event.set()
             self._thread.join(timeout=1)
@@ -74,7 +74,9 @@ class Scanner:
         """Generate barcodes as they are scanned"""
         while True:
             try:
-                barcode = self.barcodes.get() # Blocking call
+                # Blocking call, so we don't waste CPU
+                # and wait for a barcode to be available
+                barcode = self.barcodes.get()
                 if barcode is None:
                     return
                 yield barcode
