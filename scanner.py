@@ -1,15 +1,28 @@
-from evdev import InputDevice, InputEvent, categorize, ecodes
+from evdev import InputDevice, InputEvent, categorize, ecodes, KeyEvent
 import threading
 import queue
+import signal
+import sys
 from typing import Generator, Optional
 from config import BARCODE_END_KEY, GLYPH_NOT_FOUND, keymap
 
 class Scanner:
     def __init__(self, device_path: str):
         self.device: InputDevice = InputDevice(device_path)
-        self.barcodes: queue.Queue[str] = queue.Queue()
+        self.barcodes: queue.Queue[Optional[str]] = queue.Queue()
         self._stop_event: threading.Event = threading.Event()
         self._thread: Optional[threading.Thread] = None
+        self._setup_signal_handlers()
+
+    def _setup_signal_handlers(self):
+        """Handle SIGINT (Ctrl+C) gracefully"""
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+
+    def _signal_handler(self, signum, frame) -> None:
+        """Handle termination signals"""
+        self.stop()
+        sys.exit(0)
 
     def __enter__(self) -> "Scanner":
         self.start()
@@ -29,19 +42,22 @@ class Scanner:
             raise RuntimeError(f"Failed to grab device: {str(e)}")
         
         self._stop_event.clear()
-        self._thread = threading.Thread(target=self._read_loop)
+        self._thread = threading.Thread(target=self._read_loop, daemon=True, name="BarcodeScannerThread")
         self._thread.start()
 
-    def stop(self) -> None:
-        """Stop listening and clean up"""
-        if self._thread and self._thread.is_alive():
-            self._stop_event.set()
-            self._thread.join(timeout=1)
-            
+    def stop(self):
+        if self._stop_event.is_set():
+            return
+        
+        self._stop_event.set()
+        
         try:
             self.device.ungrab()
         except IOError:
-            pass  # Already ungrabbed
+            pass # Ignore if device is already ungrabbed
+        
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=0.5)
         
         self.device.close()
 
@@ -62,7 +78,7 @@ class Scanner:
         """Handle individual key press events"""
         data = categorize(event)
 
-        if data.keystate == 1: # Key press
+        if isinstance(data, KeyEvent) and data.keystate == KeyEvent.key_down: # Key press
             if data.scancode == BARCODE_END_KEY:
                 self.barcodes.put(''.join(barcode))
                 barcode.clear()
@@ -81,5 +97,5 @@ class Scanner:
                     return
                 yield barcode
             except queue.Empty:
-                if not self._thread.is_alive():
+                if self._thread is None or not self._thread.is_alive():
                     return

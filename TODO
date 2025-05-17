@@ -1,0 +1,5 @@
+Enhance handler capabilites:
+ - default action
+ - matching codes (e.g. "123*" will match with any code with 123 prefix)
+Systemd support
+Make it movable + installable

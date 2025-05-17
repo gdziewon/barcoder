@@ -1,24 +1,21 @@
 #!/usr/bin/env python3
 from scanner import Scanner
-from barcode_handler import BarcodeHandler
-import sys
+from handler import BarcodeHandler
+from logs import setup_logging
+import logging
 
-def barcoder(device_path: str) -> None:
+def barcoder(device_path: str = "/dev/barcoder") -> None:
+    setup_logging()
     handler = BarcodeHandler()
     with Scanner(device_path) as scanner:
         for barcode in scanner.read():
-            print(f"Scanned: {barcode}")
+            logging.info(f"Scanned barcode: {barcode}")
             res = handler.handle_barcode(barcode)
             if res:
-                print(f"Handled barcode: {barcode}")
+                logging.info(f"Action executed for barcode: {barcode}")
             else:
-                print(f"No action for barcode: {barcode}")
+                logging.warning(f"No action found for barcode: {barcode}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: barcoder.py <device_path>")
-        sys.exit(1)
-    
-    device_path = sys.argv[1]
-    barcoder(device_path)
+    barcoder()

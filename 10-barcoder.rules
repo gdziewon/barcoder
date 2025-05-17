@@ -1,0 +1,8 @@
+ACTION=="add", \
+SUBSYSTEM=="input", \
+ATTRS{idVendor}=="05f9", \
+ATTRS{idProduct}=="221c", \
+MODE:="0666", \
+GROUP="barcoder", \
+SYMLINK+="barcoder", \
+RUN+="/bin/sh -c 'echo $DEVNAME > /tmp/barcoder_event && chmod 0666 /tmp/barcoder_event'" # FIXME: just a workaround for now

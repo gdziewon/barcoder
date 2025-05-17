@@ -1,4 +1,4 @@
-version: 1.0
+version: "1.0"
 
 mappings:
   "613008743529":
@@ -18,3 +18,11 @@ mappings:
     command: "./riviva.sh"
     env:
       ALOE: "500ml"
+
+  "59*": # FIXME: implement wildcared matching support
+    description: "Product start with 59"
+    command: "notify-send"
+    args:
+      - "Unknown product scanned!!!"
+    env:
+      CODE: "59*"
