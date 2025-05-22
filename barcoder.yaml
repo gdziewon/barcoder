@@ -5,7 +5,7 @@ mappings:
     description: "Arizona Iced Tea"
     command: "notify-send"
     args:
-      - "Arizona Iced Tea scanned!!!"
+      - "KASUNIA JEST SLODKA!!!"
   
   "9788380962347":
     description: "RE:ZERO - Starting Life in Another World"
@@ -17,7 +17,7 @@ mappings:
     description: "Aloe drink"
     command: "./riviva.sh"
     env:
-      ALOE: "500ml"
+      KASUNIA: "SLODKA"
 
   "59*": # FIXME: implement wildcared matching support
     description: "Product start with 59"

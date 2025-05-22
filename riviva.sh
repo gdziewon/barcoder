@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "RIVIVA aloe drink scanned! ALOE env var: $ALOE" > ./riviva.log
+echo "KASUNIA JEST JAKA? $KASUNIA" > ./riviva.log
